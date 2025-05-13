@@ -65,8 +65,29 @@ updatePakeJson();
 
 updateTauriJson();
 
+function updateWindowsConfig() {
+  if (windowsJson.bundle && windowsJson.bundle.windows) {
+    console.log('Configuring Windows MSI package settings');
+    
+    if (!windowsJson.bundle.windows.wix) {
+      windowsJson.bundle.windows.wix = {};
+    }
+    
+    windowsJson.bundle.windows.wix.language = windowsJson.bundle.windows.wix.language || ["en-US"];
+    
+    windowsJson.bundle.windows.wix.productName = variables.title;
+    
+    windowsJson.bundle.windows.wix.outputName = `${variables.name}_x64`;
+    
+    console.log(`Windows MSI product name set to: ${variables.title} (中文支持)`);
+    console.log(`Windows MSI output file set to: ${windowsJson.bundle.windows.wix.outputName}.msi (英文文件名)`);
+  }
+}
+
 let platformVariables;
 let platformConfig;
+
+updateWindowsConfig();
 
 switch (os.platform()) {
   case 'linux':
@@ -142,7 +163,10 @@ function updatePakeJson() {
 
 function updateTauriJson() {
   tauriJson.productName = variables.title;
-  writeFileSync('src-tauri/tauri.conf.json', JSON.stringify(tauriJson, null, 2));
+  
+  const jsonContent = JSON.stringify(tauriJson, null, 2);
+  writeFileSync('src-tauri/tauri.conf.json', jsonContent);
+  console.log(`Updated product name to: ${tauriJson.productName}`);
 }
 
 function updateIconFile(iconPath, defaultIconPath) {
@@ -158,7 +182,10 @@ function updateIconFile(iconPath, defaultIconPath) {
 }
 
 function updatePlatformConfig(platformConfig, platformVariables) {
-  platformConfig.bundle['icon'] = platformVariables.icon;
+  if (!platformConfig.bundle.icon || (platformVariables && platformVariables.icon)) {
+    platformConfig.bundle['icon'] = platformVariables.icon;
+  }
+  
   platformConfig.identifier = variables.identifier;
 }
 

@@ -47,16 +47,18 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        build: [macos, windows]
+        # 临时只构建Windows版本，需要macOS时取消下面的注释
+        build: [windows] # [macos, windows]
         include:
           - build: windows
             os: windows-latest
             rust: stable-x86_64-msvc
             target: x86_64-pc-windows-msvc
-          - build: macos
-            os: macos-latest
-            rust: stable
-            target: x86_64-apple-darwin
+          # 临时注释掉macOS构建配置，需要时取消注释
+          # - build: macos
+          #   os: macos-latest
+          #   rust: stable
+          #   target: x86_64-apple-darwin
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -111,14 +113,14 @@ jobs:
           rustup target add x86_64-apple-darwin
           npm run tauri build -- --target universal-apple-darwin
           mkdir -p output/macos
-          mv src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg output/macos/"${{inputs.title}}".dmg
+          mv src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg output/macos/"${{inputs.name}}.dmg"
 
       - name: Build for Windows
         if: matrix.os == 'windows-latest'
         run: |
           npm run tauri build -- --target x86_64-pc-windows-msvc
           New-Item -Path "output\windows" -ItemType Directory
-          Move-Item -Path "src-tauri\target\x86_64-pc-windows-msvc\release\bundle\msi\*.msi" -Destination "output\windows\${{inputs.title}}_x64.msi"
+          Move-Item -Path "src-tauri\target\x86_64-pc-windows-msvc\release\bundle\msi\*.msi" -Destination "output\windows\${{inputs.name}}_x64.msi"
 
       - name: Restore Cargo Lock File(Windows Only)
         if: matrix.os == 'windows-latest'
@@ -140,7 +142,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: startsWith(github.ref, 'refs/tags/') != true
         with:
-          name: ${{ inputs.title }}-${{ matrix.build }}
+          name: ${{ inputs.name }}-${{ matrix.build }}
           path: 'output/*/*.*'
 
       - name: Upload For Release
