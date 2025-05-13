@@ -1,8 +1,8 @@
-import pakeJson from '../src-tauri/pake.json' assert { type: 'json' };
-import tauriJson from '../src-tauri/tauri.conf.json' assert { type: 'json' };
-import windowsJson from '../src-tauri/tauri.windows.conf.json' assert { type: 'json' };
-import macosJson from '../src-tauri/tauri.macos.conf.json' assert { type: 'json' };
-import linuxJson from '../src-tauri/tauri.linux.conf.json' assert { type: 'json' };
+import pakeJson from '../src-tauri/pake.json' with { type: 'json' };
+import tauriJson from '../src-tauri/tauri.conf.json' with { type: 'json' };
+import windowsJson from '../src-tauri/tauri.windows.conf.json' with { type: 'json' };
+import macosJson from '../src-tauri/tauri.macos.conf.json' with { type: 'json' };
+import linuxJson from '../src-tauri/tauri.linux.conf.json' with { type: 'json' };
 
 import { writeFileSync, existsSync, copyFileSync } from 'fs';
 import os from 'os';
@@ -79,16 +79,30 @@ switch (os.platform()) {
     platformConfig = macosJson;
     break;
   case 'win32':
-    platformConfig = windowsJson;
     platformVariables = variables.windows;
+    platformConfig = windowsJson;
     updateResources();
     updateIconFile(platformVariables.hdIconPath, platformVariables.hdDefaultPath);
     break;
+  default:
+    console.warn(`Unsupported platform: ${os.platform()}`);
+    // Default to macOS settings as fallback
+    platformVariables = variables.macos;
+    platformConfig = macosJson;
+    break;
 }
 
-updateIconFile(platformVariables.iconPath, platformVariables.defaultIconPath);
+if (platformVariables && platformVariables.iconPath && platformVariables.defaultIconPath) {
+  updateIconFile(platformVariables.iconPath, platformVariables.defaultIconPath);
+} else {
+  console.warn('Platform variables not properly defined, skipping icon update');
+}
 
-updatePlatformConfig(platformConfig, platformVariables);
+if (platformVariables && platformConfig) {
+  updatePlatformConfig(platformConfig, platformVariables);
+} else {
+  console.warn('Platform variables or config not properly defined, skipping platform config update');
+}
 
 save();
 
@@ -132,6 +146,11 @@ function updateTauriJson() {
 }
 
 function updateIconFile(iconPath, defaultIconPath) {
+  if (!iconPath || !defaultIconPath) {
+    console.warn(`Icon paths not properly defined. iconPath: ${iconPath}, defaultIconPath: ${defaultIconPath}`);
+    return;
+  }
+  
   if (!existsSync(iconPath)) {
     console.warn(`Icon for ${process.env.NAME} not found, will use default icon`);
     copyFileSync(defaultIconPath, iconPath);
@@ -147,12 +166,21 @@ function save() {
   writeFileSync(variables.pakeConfigPath, JSON.stringify(pakeJson, null, 2));
   writeFileSync(variables.tauriConfigPath, JSON.stringify(tauriJson, null, 2));
 
-  writeFileSync(variables.linux.configFilePath, JSON.stringify(linuxJson, null, 2));
-  writeFileSync(platformVariables.configFilePath, JSON.stringify(platformConfig, null, 2));
+  if (variables.linux) {
+    writeFileSync(variables.linux.configFilePath, JSON.stringify(linuxJson, null, 2));
+  }
+  
+  if (platformVariables && platformVariables.configFilePath) {
+    writeFileSync(platformVariables.configFilePath, JSON.stringify(platformConfig, null, 2));
+  }
 
-  writeFileSync(variables.macos.configFilePath, JSON.stringify(macosJson, null, 2));
+  if (variables.macos) {
+    writeFileSync(variables.macos.configFilePath, JSON.stringify(macosJson, null, 2));
+  }
 
-  writeFileSync(variables.windows.configFilePath, JSON.stringify(windowsJson, null, 2));
+  if (variables.windows) {
+    writeFileSync(variables.windows.configFilePath, JSON.stringify(windowsJson, null, 2));
+  }
 }
 
 function updateDesktopEntry() {
