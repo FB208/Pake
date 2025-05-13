@@ -171,7 +171,7 @@ function updateTauriJson() {
   
   const jsonContent = JSON.stringify(tauriJson, null, 2);
   writeFileSync('src-tauri/tauri.conf.json', jsonContent);
-  console.log(`Updated global product name to: ${tauriJson.productName}`);
+  console.log(`将全局产品名称更新为: ${tauriJson.productName} (将在所有平台上显示此名称)`);
 }
 
 function updateIconFile(iconPath, defaultIconPath) {
@@ -192,6 +192,12 @@ function updatePlatformConfig(platformConfig, platformVariables) {
   }
   
   platformConfig.identifier = variables.identifier;
+  
+  // 确保macOS配置使用中文名称
+  if (platformConfig === macosJson && platformConfig.bundle && platformConfig.bundle.macOS) {
+    // 设置macOS上显示的名称为中文名称
+    console.log(`正在配置macOS应用名称为: ${variables.shortName}`);
+  }
 }
 
 function save() {

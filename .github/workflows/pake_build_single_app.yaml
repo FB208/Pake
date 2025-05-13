@@ -55,17 +55,17 @@ jobs:
     strategy:
       matrix:
         # 临时只构建Windows版本，需要macOS时取消下面的注释
-        build: [windows] # [macos, windows]
+        build: [macos, windows]
         include:
           - build: windows
             os: windows-latest
             rust: stable-x86_64-msvc
             target: x86_64-pc-windows-msvc
           # 临时注释掉macOS构建配置，需要时取消注释
-          # - build: macos
-          #   os: macos-latest
-          #   rust: stable
-          #   target: x86_64-apple-darwin
+          - build: macos
+            os: macos-latest
+            rust: stable
+            target: x86_64-apple-darwin
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -122,7 +122,7 @@ jobs:
           rustup target add x86_64-apple-darwin
           npm run tauri build -- --target universal-apple-darwin
           mkdir -p output/macos
-          mv src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg output/macos/"${{inputs.name}}.dmg"
+          mv src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg output/macos/"${{inputs.short_name || inputs.name_zh}}.dmg"
 
       - name: Build for Windows
         if: matrix.os == 'windows-latest'
