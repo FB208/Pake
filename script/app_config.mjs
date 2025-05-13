@@ -74,7 +74,7 @@ function updateWindowsConfig() {
       windowsJson.bundle.windows.wix = {};
     }
     
-    windowsJson.bundle.windows.wix.language = windowsJson.bundle.windows.wix.language || ["en-US"];
+    windowsJson.bundle.windows.wix.language = windowsJson.bundle.windows.wix.language || ["zh-CN"];
     
     console.log(`Windows MSI配置已更新，移除了无效属性`);
   }

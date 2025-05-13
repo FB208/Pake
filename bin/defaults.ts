@@ -21,7 +21,7 @@ export const DEFAULT_PAKE_OPTIONS: PakeCliOptions = {
   proxyUrl: "",
   debug: false,
   inject: [],
-  installerLanguage: 'en-US',
+  installerLanguage: 'zh-CN',
 };
 
 // Just for cli development
