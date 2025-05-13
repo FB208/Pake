@@ -140,6 +140,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: startsWith(github.ref, 'refs/tags/') != true
         with:
+          name: ${{ inputs.title }}-${{ matrix.build }}
           path: 'output/*/*.*'
 
       - name: Upload For Release
