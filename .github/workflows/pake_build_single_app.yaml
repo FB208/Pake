@@ -14,6 +14,9 @@ on:
         description: 'App Name in Chinese'
         required: true
         default: '推特'
+      short_name:
+        description: 'App Display Name (for Windows shortcuts, default is Name in Chinese)'
+        required: false
       url:
         description: 'App URL'
         required: true
@@ -35,6 +38,10 @@ on:
         required: true
         type: string
         default: '推特'
+      short_name:
+        description: 'App Display Name (for Windows shortcuts, default is Name in Chinese)'
+        type: string
+        required: false
       url:
         description: 'App URL'
         required: true
@@ -93,6 +100,7 @@ jobs:
           NAME: ${{ inputs.name }}
           TITLE: ${{ inputs.title }}
           NAME_ZH: ${{ inputs.name_zh }}
+          SHORT_NAME: ${{ inputs.short_name }}
           URL: ${{ inputs.url }}
         run: |
           npm install

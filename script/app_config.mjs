@@ -24,6 +24,7 @@ const variables = {
   name: process.env.NAME,
   title: process.env.TITLE,
   nameZh: process.env.NAME_ZH,
+  shortName: process.env.SHORT_NAME || process.env.NAME_ZH,
 
   pakeConfigPath: 'src-tauri/pake.json',
   tauriConfigPath: 'src-tauri/tauri.conf.json',
@@ -75,12 +76,20 @@ function updateWindowsConfig() {
     
     windowsJson.bundle.windows.wix.language = windowsJson.bundle.windows.wix.language || ["en-US"];
     
-    windowsJson.bundle.windows.wix.productName = variables.title;
+    windowsJson.bundle.windows.wix.productName = variables.name;
     
     windowsJson.bundle.windows.wix.outputName = `${variables.name}_x64`;
     
-    console.log(`Windows MSI product name set to: ${variables.title} (中文支持)`);
-    console.log(`Windows MSI output file set to: ${windowsJson.bundle.windows.wix.outputName}.msi (英文文件名)`);
+    console.log(`Windows MSI configured for validation compliance`);
+    console.log(`Windows MSI output file set to: ${windowsJson.bundle.windows.wix.outputName}.msi`);
+    
+    if (tauriJson.tauri && tauriJson.tauri.bundle && tauriJson.tauri.bundle.windows && tauriJson.tauri.bundle.windows.shortName === undefined) {
+      if (!tauriJson.tauri) tauriJson.tauri = {};
+      if (!tauriJson.tauri.bundle) tauriJson.tauri.bundle = {};
+      if (!tauriJson.tauri.bundle.windows) tauriJson.tauri.bundle.windows = {};
+      
+      tauriJson.tauri.bundle.windows.shortName = variables.shortName;
+    }
   }
 }
 
@@ -155,6 +164,13 @@ function validate() {
   }
 
   console.log(`NAME_ZH: ${process.env.NAME_ZH}`);
+  
+  // SHORT_NAME是可选的，默认使用NAME_ZH
+  if ('SHORT_NAME' in process.env) {
+    console.log(`SHORT_NAME: ${process.env.SHORT_NAME}`);
+  } else {
+    console.log(`SHORT_NAME not set, will use NAME_ZH: ${process.env.NAME_ZH}`);
+  }
 }
 
 function updatePakeJson() {
@@ -164,9 +180,16 @@ function updatePakeJson() {
 function updateTauriJson() {
   tauriJson.productName = variables.title;
   
+  if (!tauriJson.tauri) tauriJson.tauri = {};
+  if (!tauriJson.tauri.bundle) tauriJson.tauri.bundle = {};
+  if (!tauriJson.tauri.bundle.windows) tauriJson.tauri.bundle.windows = {};
+  
+  tauriJson.tauri.bundle.windows.shortName = variables.shortName;
+  
   const jsonContent = JSON.stringify(tauriJson, null, 2);
   writeFileSync('src-tauri/tauri.conf.json', jsonContent);
   console.log(`Updated product name to: ${tauriJson.productName}`);
+  console.log(`Updated Windows shortName to: ${tauriJson.tauri.bundle.windows.shortName}`);
 }
 
 function updateIconFile(iconPath, defaultIconPath) {

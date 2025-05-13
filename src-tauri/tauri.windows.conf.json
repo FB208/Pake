@@ -9,7 +9,9 @@
       "wix": {
         "language": ["en-US"],
         "template": "assets/main.wxs"
-      }
+      },
+      "shortName": "易标AI"
     }
-  }
+  },
+  "productName": "YiBiaoAI"
 }
