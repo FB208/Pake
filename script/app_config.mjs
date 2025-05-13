@@ -76,16 +76,10 @@ function updateWindowsConfig() {
     
     windowsJson.bundle.windows.wix.language = windowsJson.bundle.windows.wix.language || ["en-US"];
     
-    windowsJson.bundle.windows.wix.productName = variables.name;
-    
-    windowsJson.bundle.windows.wix.outputName = `${variables.name}_x64`;
-    
-    console.log(`Windows MSI configured for validation compliance`);
-    console.log(`Windows MSI output file set to: ${windowsJson.bundle.windows.wix.outputName}.msi`);
+    console.log(`Windows MSI配置已更新，移除了无效属性`);
   }
   
-  windowsJson.productName = variables.shortName;
-  console.log(`Set Windows productName to: ${windowsJson.productName}`);
+  delete windowsJson.productName;
 }
 
 let platformVariables;
@@ -173,11 +167,11 @@ function updatePakeJson() {
 }
 
 function updateTauriJson() {
-  tauriJson.productName = variables.title;
+  tauriJson.productName = variables.shortName;
   
   const jsonContent = JSON.stringify(tauriJson, null, 2);
   writeFileSync('src-tauri/tauri.conf.json', jsonContent);
-  console.log(`Updated product name to: ${tauriJson.productName}`);
+  console.log(`Updated global product name to: ${tauriJson.productName}`);
 }
 
 function updateIconFile(iconPath, defaultIconPath) {
@@ -202,22 +196,49 @@ function updatePlatformConfig(platformConfig, platformVariables) {
 
 function save() {
   writeFileSync(variables.pakeConfigPath, JSON.stringify(pakeJson, null, 2));
+  
+  // 保存主配置文件
   writeFileSync(variables.tauriConfigPath, JSON.stringify(tauriJson, null, 2));
+  console.log(`保存了主配置文件: ${variables.tauriConfigPath}`);
 
+  // 确保Linux配置不包含无效属性
   if (variables.linux) {
+    // 删除无效属性
+    delete linuxJson.productName;
+    delete linuxJson.tauri;
+    
     writeFileSync(variables.linux.configFilePath, JSON.stringify(linuxJson, null, 2));
+    console.log(`保存了Linux配置文件: ${variables.linux.configFilePath}`);
   }
   
+  // 确保平台特定配置不包含无效属性
   if (platformVariables && platformVariables.configFilePath) {
+    // 删除无效属性
+    delete platformConfig.productName;
+    delete platformConfig.tauri;
+    
     writeFileSync(platformVariables.configFilePath, JSON.stringify(platformConfig, null, 2));
+    console.log(`保存了平台特定配置文件: ${platformVariables.configFilePath}`);
   }
 
+  // 确保macOS配置不包含无效属性
   if (variables.macos) {
+    // 删除无效属性
+    delete macosJson.productName;
+    delete macosJson.tauri;
+    
     writeFileSync(variables.macos.configFilePath, JSON.stringify(macosJson, null, 2));
+    console.log(`保存了macOS配置文件: ${variables.macos.configFilePath}`);
   }
 
+  // 确保Windows配置不包含无效属性
   if (variables.windows) {
+    // 删除无效属性
+    delete windowsJson.productName;
+    delete windowsJson.tauri;
+    
     writeFileSync(variables.windows.configFilePath, JSON.stringify(windowsJson, null, 2));
+    console.log(`保存了Windows配置文件: ${variables.windows.configFilePath}`);
   }
 }
 

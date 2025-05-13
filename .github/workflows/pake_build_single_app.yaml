@@ -127,6 +127,10 @@ jobs:
       - name: Build for Windows
         if: matrix.os == 'windows-latest'
         run: |
+          echo "检查Tauri配置文件:"
+          type src-tauri\tauri.conf.json
+          echo "检查Windows特定配置:"
+          type src-tauri\tauri.windows.conf.json
           npm run tauri build -- --target x86_64-pc-windows-msvc
           New-Item -Path "output\windows" -ItemType Directory
           Move-Item -Path "src-tauri\target\x86_64-pc-windows-msvc\release\bundle\msi\*.msi" -Destination "output\windows\${{inputs.name}}_x64.msi"
