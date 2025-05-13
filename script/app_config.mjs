@@ -82,15 +82,10 @@ function updateWindowsConfig() {
     
     console.log(`Windows MSI configured for validation compliance`);
     console.log(`Windows MSI output file set to: ${windowsJson.bundle.windows.wix.outputName}.msi`);
-    
-    if (tauriJson.tauri && tauriJson.tauri.bundle && tauriJson.tauri.bundle.windows && tauriJson.tauri.bundle.windows.shortName === undefined) {
-      if (!tauriJson.tauri) tauriJson.tauri = {};
-      if (!tauriJson.tauri.bundle) tauriJson.tauri.bundle = {};
-      if (!tauriJson.tauri.bundle.windows) tauriJson.tauri.bundle.windows = {};
-      
-      tauriJson.tauri.bundle.windows.shortName = variables.shortName;
-    }
   }
+  
+  windowsJson.productName = variables.shortName;
+  console.log(`Set Windows productName to: ${windowsJson.productName}`);
 }
 
 let platformVariables;
@@ -180,16 +175,9 @@ function updatePakeJson() {
 function updateTauriJson() {
   tauriJson.productName = variables.title;
   
-  if (!tauriJson.tauri) tauriJson.tauri = {};
-  if (!tauriJson.tauri.bundle) tauriJson.tauri.bundle = {};
-  if (!tauriJson.tauri.bundle.windows) tauriJson.tauri.bundle.windows = {};
-  
-  tauriJson.tauri.bundle.windows.shortName = variables.shortName;
-  
   const jsonContent = JSON.stringify(tauriJson, null, 2);
   writeFileSync('src-tauri/tauri.conf.json', jsonContent);
   console.log(`Updated product name to: ${tauriJson.productName}`);
-  console.log(`Updated Windows shortName to: ${tauriJson.tauri.bundle.windows.shortName}`);
 }
 
 function updateIconFile(iconPath, defaultIconPath) {

@@ -100,9 +100,10 @@ jobs:
           NAME: ${{ inputs.name }}
           TITLE: ${{ inputs.title }}
           NAME_ZH: ${{ inputs.name_zh }}
-          SHORT_NAME: ${{ inputs.short_name }}
+          SHORT_NAME: ${{ inputs.short_name || inputs.name_zh }}
           URL: ${{ inputs.url }}
         run: |
+          echo "设置环境变量: NAME=$NAME, TITLE=$TITLE, NAME_ZH=$NAME_ZH, SHORT_NAME=$SHORT_NAME, URL=$URL"
           npm install
           npm run build:config
 
